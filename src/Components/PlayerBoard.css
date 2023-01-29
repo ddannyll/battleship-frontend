@@ -1,0 +1,18 @@
+.board {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    max-width: 500px;
+    aspect-ratio: 1 / 1;
+}
+
+.cell {
+    border: 1px solid black;
+}
+
+.s {
+    background-color: grey;
+}
+
+.w {
+    background-color: lightblue;
+}
