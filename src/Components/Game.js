@@ -21,6 +21,7 @@ export default function Game(props) {
     const [ state, setState ] = useState()
     const [ error, setError ] = useState(null)
     const [ playerClickCell, setPlayerClickCell ] = useState(() => {})
+    const [ enemyClickCell, setEnemeyClickCell ] = useState(() => {})
     const [ shipsToPlace, setShipsToPlace ] = useState([])
 
     const handleResponse = (response) => {
@@ -59,14 +60,14 @@ export default function Game(props) {
 
     const placeShip = useCallback((shipName, x, y, vertical) => {
         const postUrl = new URL(backendUrl)
-        postUrl.pathname = `place`
+        postUrl.pathname = `place/${id}`
         handleResponse(
             fetch(postUrl, {
                 mode:'cors',
                 method:'POST',
                 headers:{'Content-Type':'application/json'},
                 body: JSON.stringify({
-                    shipName,
+                    token,
                     playerId: 1,
                     position: {
                         x,
@@ -77,9 +78,9 @@ export default function Game(props) {
             })
         )
         console.log('placing ship: ' + shipName);
-    }, [backendUrl, token])
+    }, [backendUrl, token, id])
 
-    const attack = (x, y) => {
+    const attack = useCallback((x, y) => {
         const postUrl = new URL(backendUrl)
         postUrl.pathname = `attack/${id}`
         handleResponse(
@@ -96,7 +97,7 @@ export default function Game(props) {
                 })
             })
         )
-    }
+    }, [backendUrl, id, token])
 
 
     useEffect(() => {
@@ -106,31 +107,36 @@ export default function Game(props) {
     useEffect(() => {
         switch (state) {
             case "place":
+                setEnemeyClickCell(() => () => {})
                 if (shipsToPlace.length > 0) {
                     setPlayerClickCell(() => (x, y) => {placeShip(shipsToPlace[0], x, y, false)})
                 } else {
-                    setPlayerClickCell(() => (() => {}))
+                    setPlayerClickCell(() => () => {})
                 }
                 break;
             case "battle":
+                setPlayerClickCell(() => () => {})
+                setEnemeyClickCell(() => (x, y) => {attack(x, y)})
                 break
             case "finish":
-
+                setPlayerClickCell(() => () => {})
+                setEnemeyClickCell(() => () => {})
                 break
             default:
 
                 break;
         }
-    }, [placeShip, shipsToPlace, state])
+    }, [attack, placeShip, shipsToPlace, state])
 
 
 
 
     return (
         <>
-        Game {id} {token}
+        Game {id} {token} {state}
         {error}
         <PlayerBoard board={board} clickCell={playerClickCell}/>
+        <PlayerBoard board={enemyBoard} clickCell={enemyBoard}/> 
         </>
     )
 }

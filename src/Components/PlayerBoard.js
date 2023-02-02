@@ -13,21 +13,33 @@ export default function PlayerBoard({board, clickCell}) {
     const {ships, shells} = board
 
     const shipPositions = []
-        Object.values(ships).forEach(ship => {
-        ship.positions.forEach(position => shipPositions.push(position))
-    })
     
+    if (ships !== undefined) {
+        // ships will be undefined if enemyboard is used
+        Object.values(ships).forEach(ship => {
+            ship.positions.forEach(position => shipPositions.push(position))
+        })
+    }
+
+
     
     const cells = []
     for (let i = 0; i < BOARD_SIZE; i++) {
         for (let j = 0; j < BOARD_SIZE; j++) {
+            const hasShip = shipPositions.some(position => isEqual(position, {x: j, y:i}))
+            const hasShell = shells.some(shell => shell.x === j && shell.y === i)
+            let className = 'cell'
+            if (hasShip) {
+                className += ' ship'
+            }
+            if (hasShell) {
+                className += ' shell'
+            }
             cells.push(
                 <div
                     key={`${j}${i}`} 
                     onClick={(e) => {clickCell(j, i)}}
-                    className={shipPositions.some(position => isEqual(position, {x: j, y:i}))  ?
-                    'cell s' :
-                    'cell w'}
+                    className={className}
                 >
                 </div>)
         }
