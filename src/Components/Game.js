@@ -16,11 +16,10 @@ const SHIP_NAMES = [
 
 export default function Game(props) {
     const { id } = useParams()
-    const { backendUrl, sessionToken, setSessionToken } = props
+    const { backendUrl, sessionToken, setSessionToken, appendError } = props
     const [ board, setBoard ] = useState()
     const [ enemyBoard, setEnemyBoard ] = useState()
     const [ state, setState ] = useState()
-    const [ error, setError ] = useState(null)
     const [ vertical, setVertical ] = useState(false)
     const [ playerClickCell, setPlayerClickCell ] = useState(() => {})
     const [ enemyClickCell, setEnemeyClickCell ] = useState(() => {})
@@ -42,7 +41,6 @@ export default function Game(props) {
             setEnemyBoard(response.enemyBoard)
             setState(response.state)
             setAttackTurn(response.attackTurn)
-            setError(null)
             setShipsToPlace((prevShips) => {
                 const newShips = difference(SHIP_NAMES, Object.keys(response.board.ships))
                 if (isEqual(newShips, prevShips)) {
@@ -52,10 +50,10 @@ export default function Game(props) {
             })
         })
         .catch(err => {
-            setError(err.message)
-            console.error(err.message);
+            console.error(err);
+            appendError(err.message)
         })
-    }, [setSessionToken])
+    }, [setSessionToken, appendError])
 
     const fetchData = useCallback(() => {
         if (!sessionToken) {
@@ -176,7 +174,6 @@ export default function Game(props) {
         <div className="game">
             <GameHeader id={id} state={state} attackTurn={attackTurn}/>
             Game {id} {sessionToken} {state} {attackTurn?'attack':'wait'}
-            {error}
             <button onClick={() => {setVertical(prev => !prev)}}>Change Orientation</button>
             <PlayerBoard board={board} clickCell={playerClickCell} shipToPlace={shipsToPlace[0]} vertical={vertical}/>
             <PlayerBoard board={enemyBoard} clickCell={enemyClickCell}/> 
