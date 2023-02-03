@@ -4,7 +4,7 @@ import Game from "./Game";
 import Home from "./Home";
 
 function App() {
-    const backendUrl = 'http://localhost:4200'
+    const backendUrl = process.env.BACKEND_URL || 'http://localhost:4200'
     const [ sessionToken, setSessionToken ] = useState(window.sessionStorage.getItem('sessionToken'))
     useEffect(() => {
         window.sessionStorage.setItem('sessionToken', sessionToken)
