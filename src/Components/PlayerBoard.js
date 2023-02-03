@@ -5,7 +5,6 @@ import { isEqual } from 'lodash'
 const BOARD_SIZE = 10
 
 export default function PlayerBoard({board, clickCell}) {
-    console.log(board);
     if (!board) {
         return <></>
     }
@@ -28,6 +27,7 @@ export default function PlayerBoard({board, clickCell}) {
         for (let j = 0; j < BOARD_SIZE; j++) {
             const hasShip = shipPositions.some(position => isEqual(position, {x: j, y:i}))
             const hasShell = shells.some(shell => shell.x === j && shell.y === i)
+            const hit = shells.some(shell => shell.x === j && shell.y === i && shell.hitShip)
             let className = 'cell'
             if (hasShip) {
                 className += ' ship'
@@ -35,6 +35,10 @@ export default function PlayerBoard({board, clickCell}) {
             if (hasShell) {
                 className += ' shell'
             }
+            if (hit) {
+                className += ' hit'
+            }
+            
             cells.push(
                 <div
                     key={`${j}${i}`} 

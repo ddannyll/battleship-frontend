@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import PlayerBoard from "./PlayerBoard"
-import { difference } from "lodash"
+import { difference, isEqual } from "lodash"
+import './Game.css'
+import GameHeader from "./GameHeader"
 
 const SHIP_NAMES = [
     'carrier',
@@ -14,8 +16,7 @@ const SHIP_NAMES = [
 
 export default function Game(props) {
     const { id } = useParams()
-    const { backendUrl } = props
-    const [ token, setToken ] = useState()
+    const { backendUrl, sessionToken, setSessionToken } = props
     const [ board, setBoard ] = useState()
     const [ enemyBoard, setEnemyBoard ] = useState()
     const [ state, setState ] = useState()
@@ -23,8 +24,11 @@ export default function Game(props) {
     const [ playerClickCell, setPlayerClickCell ] = useState(() => {})
     const [ enemyClickCell, setEnemeyClickCell ] = useState(() => {})
     const [ shipsToPlace, setShipsToPlace ] = useState([])
+    const [ attackTurn, setAttackTurn ] = useState(false)
 
-    const handleResponse = (response) => {
+
+
+    const handleResponse = useCallback((response) => {
         response.then(response => {
             if (!response.ok) {
                 return response.text().then(text=>{throw new Error(text)})
@@ -32,31 +36,41 @@ export default function Game(props) {
             return response.json()
         })
         .then(response => {
-            setToken(response.token)
+            setSessionToken(response.token)
             setBoard(response.board)
             setEnemyBoard(response.enemyBoard)
             setState(response.state)
+            setAttackTurn(response.attackTurn)
             setError(null)
-            setShipsToPlace(difference(SHIP_NAMES, Object.keys(response.board.ships)))
+            setShipsToPlace((prevShips) => {
+                const newShips = difference(SHIP_NAMES, Object.keys(response.board.ships))
+                if (isEqual(newShips, prevShips)) {
+                    return prevShips
+                }
+                return newShips
+            })
         })
         .catch(err => {
             setError(err.message)
             console.error(err.message);
         })
-    }
+    }, [setSessionToken])
 
     const fetchData = useCallback(() => {
+        if (!sessionToken) {
+            return
+        }
         console.log('fetch')
         const getUrl = new URL(backendUrl)
         getUrl.pathname = `response/${id}`
-        getUrl.searchParams.set('token', token)
+        getUrl.searchParams.set('token', sessionToken)
         handleResponse(
             fetch(getUrl, {
                 mode:'cors',
                 method:'GET'
             })
         )
-    }, [id, backendUrl, token])
+    }, [id, backendUrl, sessionToken, handleResponse])
 
     const placeShip = useCallback((shipName, x, y, vertical) => {
         const postUrl = new URL(backendUrl)
@@ -67,8 +81,9 @@ export default function Game(props) {
                 method:'POST',
                 headers:{'Content-Type':'application/json'},
                 body: JSON.stringify({
-                    token,
+                    token: sessionToken,
                     playerId: 1,
+                    shipName,
                     position: {
                         x,
                         y
@@ -78,7 +93,7 @@ export default function Game(props) {
             })
         )
         console.log('placing ship: ' + shipName);
-    }, [backendUrl, token, id])
+    }, [backendUrl, sessionToken, id, handleResponse])
 
     const attack = useCallback((x, y) => {
         const postUrl = new URL(backendUrl)
@@ -89,7 +104,7 @@ export default function Game(props) {
                 method:'POST',
                 headers:{'Content-Type': 'application/json'},
                 body: JSON.stringify({
-                    token,
+                    token: sessionToken,
                     position: {
                         x,
                         y
@@ -97,14 +112,35 @@ export default function Game(props) {
                 })
             })
         )
-    }, [backendUrl, id, token])
-
+    }, [backendUrl, id, sessionToken, handleResponse])
 
     useEffect(() => {
+        console.log('join effect');
+        if (!sessionToken) {
+            const postUrl = new URL(backendUrl)
+            postUrl.pathname = `join/${id}`
+            handleResponse(
+                fetch(postUrl, {
+                    mode:'cors',
+                    method:'POST'
+                })
+            )
+        }
+    }, [backendUrl, id, sessionToken, handleResponse])
+
+    useEffect(() => {
+        console.log('fetch effect');
         fetchData()
-    }, [fetchData])
+        let intervalId
+        if ((!attackTurn && state === 'battle') || (shipsToPlace.length === 0 && state === 'place')) {
+            console.log('interval');
+            intervalId = setInterval(fetchData, 1000)
+        }
+        return (() => clearInterval(intervalId))
+    }, [fetchData, attackTurn, shipsToPlace, state])
 
     useEffect(() => {
+        console.log('state effect');
         switch (state) {
             case "place":
                 setEnemeyClickCell(() => () => {})
@@ -116,7 +152,11 @@ export default function Game(props) {
                 break;
             case "battle":
                 setPlayerClickCell(() => () => {})
-                setEnemeyClickCell(() => (x, y) => {attack(x, y)})
+                if (attackTurn) {
+                    setEnemeyClickCell(() => (x, y) => {attack(x, y)})
+                } else {
+                    setEnemeyClickCell(() => () => {})
+                }
                 break
             case "finish":
                 setPlayerClickCell(() => () => {})
@@ -126,17 +166,18 @@ export default function Game(props) {
 
                 break;
         }
-    }, [attack, placeShip, shipsToPlace, state])
+    }, [attack, placeShip, shipsToPlace, state, attackTurn])
 
 
 
 
     return (
-        <>
-        Game {id} {token} {state}
-        {error}
-        <PlayerBoard board={board} clickCell={playerClickCell}/>
-        <PlayerBoard board={enemyBoard} clickCell={enemyBoard}/> 
-        </>
+        <div className="game">
+            <GameHeader id={id} state={state} attackTurn={attackTurn}/>
+            Game {id} {sessionToken} {state} {attackTurn?'attack':'wait'}
+            {error}
+            <PlayerBoard board={board} clickCell={playerClickCell}/>
+            <PlayerBoard board={enemyBoard} clickCell={enemyClickCell}/> 
+        </div>
     )
 }
