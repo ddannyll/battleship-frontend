@@ -7,6 +7,8 @@
     aspect-ratio: 1 / 1;
 }
 
+
+
 .cell {
     border: 1px solid black;
     background-color: rgb(120, 188, 210);
@@ -16,7 +18,9 @@
     color: white;
 }
 
-
+.placeHighlight {
+    background-color: lightgrey;
+}
 .ship {
     background-color: grey;
 }
@@ -28,3 +32,4 @@
 .shell.hit {
     color: red;
 }
+

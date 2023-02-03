@@ -21,6 +21,7 @@ export default function Game(props) {
     const [ enemyBoard, setEnemyBoard ] = useState()
     const [ state, setState ] = useState()
     const [ error, setError ] = useState(null)
+    const [ vertical, setVertical ] = useState(false)
     const [ playerClickCell, setPlayerClickCell ] = useState(() => {})
     const [ enemyClickCell, setEnemeyClickCell ] = useState(() => {})
     const [ shipsToPlace, setShipsToPlace ] = useState([])
@@ -145,7 +146,7 @@ export default function Game(props) {
             case "place":
                 setEnemeyClickCell(() => () => {})
                 if (shipsToPlace.length > 0) {
-                    setPlayerClickCell(() => (x, y) => {placeShip(shipsToPlace[0], x, y, false)})
+                    setPlayerClickCell(() => (x, y) => {placeShip(shipsToPlace[0], x, y, vertical)})
                 } else {
                     setPlayerClickCell(() => () => {})
                 }
@@ -166,7 +167,7 @@ export default function Game(props) {
 
                 break;
         }
-    }, [attack, placeShip, shipsToPlace, state, attackTurn])
+    }, [attack, placeShip, shipsToPlace, state, attackTurn, vertical])
 
 
 
@@ -176,7 +177,8 @@ export default function Game(props) {
             <GameHeader id={id} state={state} attackTurn={attackTurn}/>
             Game {id} {sessionToken} {state} {attackTurn?'attack':'wait'}
             {error}
-            <PlayerBoard board={board} clickCell={playerClickCell}/>
+            <button onClick={() => {setVertical(prev => !prev)}}>Change Orientation</button>
+            <PlayerBoard board={board} clickCell={playerClickCell} shipToPlace={shipsToPlace[0]} vertical={vertical}/>
             <PlayerBoard board={enemyBoard} clickCell={enemyClickCell}/> 
         </div>
     )
