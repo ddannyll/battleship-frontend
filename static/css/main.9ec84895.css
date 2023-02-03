@@ -1,2 +1,0 @@
-.board{grid-template-columns:repeat(10,1fr);max-width:500px}.board,.cell{aspect-ratio:1/1;display:grid}.cell{background-color:#78bcd2;border:1px solid #000;color:#fff;place-content:center}.placeHighlight{background-color:#d3d3d3}.ship{background-color:grey}.shell:after{content:"⬤"}.shell.hit{color:red}.game{display:flex;flex-direction:column;gap:1rem}
-/*# sourceMappingURL=main.9ec84895.css.map*/
