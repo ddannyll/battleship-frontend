@@ -104,6 +104,7 @@ export default function Game({backendUrl, appendError, token}) {
         if (!token) {
             return
         }
+        console.log('joining');
         const controller = new AbortController()
         const url = new URL(backendUrl)
         url.pathname = `join/${id}`
@@ -124,7 +125,7 @@ export default function Game({backendUrl, appendError, token}) {
 
     useEffect(() => {
         // useEffect for settings ShipsToPlace
-        if (!response) {
+        if (!response || !token) {
             return
         }
         console.log(response);
@@ -139,6 +140,9 @@ export default function Game({backendUrl, appendError, token}) {
 
     useEffect(() => {
         // Polling fetch when waiting for enemy turn
+        if (!response || !token) {
+            return
+        }
         console.log('fetch effect');
         const fetchResponse = () => {
             console.log('fetching');
@@ -152,7 +156,6 @@ export default function Game({backendUrl, appendError, token}) {
                 })
             )
         }
-        fetchResponse()
         let intervalId
         if (response && ((!response.attackTurn && response.state === 'battle') || (shipsToPlace.length === 0 && response.state === 'place'))) {
             console.log('interval');
@@ -161,16 +164,20 @@ export default function Game({backendUrl, appendError, token}) {
         return (() => clearInterval(intervalId))
     }, [shipsToPlace, response, backendUrl, id, token, handleResponse])
 
-    const handleSwitchOrientation = (e) => {
-        e.preventDefault()
+    
+    const changeOrientation = useCallback(() => {
         setVertical(prev => !prev)
-    }
-
+    }, [])
+    
+    const handleSwitchOrientation = useCallback((e) => {
+        e.preventDefault()
+        changeOrientation()
+    }, [changeOrientation])
 
     return (
         <>
-            <GameHeader id={id} state={response?.state} attackTurn={response?.attackTurn} shipToPlace={shipsToPlace[0]}/>
-            <button onClick={() => {setVertical(prev => !prev)}}>RMB : Change Orientation</button>
+            <GameHeader id={id} state={response?.state} attackTurn={response?.attackTurn} shipToPlace={shipsToPlace[0] }/>
+            <button onClick={changeOrientation}>RMB : Change Orientation</button>
             <div className="boards" onContextMenu={handleSwitchOrientation}>
                 <Board board={response?.board} clickCell={playerClickCell} shipToPlace={shipsToPlace[0]} vertical={vertical} />
                 <Board board={response?.enemyBoard} clickCell={enemyClickCell}/>

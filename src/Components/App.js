@@ -29,6 +29,7 @@ function App() {
     }, [])
 
     useEffect(() => {
+        console.log('getting token');
         if (token) {
             return
         }
@@ -60,6 +61,7 @@ function App() {
 
     return (
         <>
+        {token}
             <ErrorNotifications errors={errors}/>
             <Routes>
                 <Route path="/" element={<Home backendUrl={backendUrl} appendError={appendError} token={token}/>}/>
