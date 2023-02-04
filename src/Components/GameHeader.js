@@ -1,6 +1,6 @@
 import './GameHeader.css'
 
-export default function GameHeader({ id, state, attackTurn, shipToPlace}) {
+export default function GameHeader({ id, state, attackTurn, shipToPlace, winner }) {
     
     let primaryText = 'Unknown Primary'
     let secondaryText = 'Unknown Secondary'
@@ -10,7 +10,10 @@ export default function GameHeader({ id, state, attackTurn, shipToPlace}) {
     } else if (state === 'battle') {
         primaryText = 'Battle'
         secondaryText = attackTurn ? 'Your turn to attack!' : 'Waiting for opponent...'
-    } 
+    } else if (state ==='finish') {
+        primaryText = 'Game Over!'
+        secondaryText = ''
+    }
 
 
     return (
