@@ -1,4 +1,4 @@
-import './PlayerBoard.css'
+import './Board.css'
 
 import { isEqual } from 'lodash'
 import { useMemo, useState } from 'react'
@@ -12,7 +12,7 @@ const SHIP_LENGTHS = {
     patrolBoat: 2
 }
 
-export default function PlayerBoard({board, clickCell, shipToPlace, vertical}) {
+export default function Board({board, clickCell, shipToPlace, vertical}) {
     const [ hoverCell, setHoverCell ] = useState(null)
     const highlightCells = useMemo(() => {
         const cells = []

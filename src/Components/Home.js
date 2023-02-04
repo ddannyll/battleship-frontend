@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom"
 
-export default function Home({backendUrl, appendError}) {
+export default function Home({backendUrl, appendError, token}) {
     const navigate = useNavigate()
 
     const createGame = async () => {
@@ -11,14 +11,17 @@ export default function Home({backendUrl, appendError}) {
                 mode:'cors',
                 method:'POST',
                 headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({
+                    token
+                })
             })
             if (!response.ok) {
                 response = await response.text()
                 throw new Error(response)
             }
             response = await response.json()
-            const { gameId, token } = response
-            navigate(`/game/${gameId}`, {state:{token}})
+            const { gameId } = response
+            navigate(`/game/${gameId}`)
         } catch (err) {
             console.error(err);
             appendError(err.message)

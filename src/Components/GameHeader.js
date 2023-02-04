@@ -9,6 +9,7 @@ export default function GameHeader({ id, state, attackTurn, shipToPlace}) {
         secondaryText = !shipToPlace ? 'Waiting for opponent...' : 'Place your ' + shipToPlace
     } else if (state === 'battle') {
         primaryText = 'Battle'
+        secondaryText = attackTurn ? 'Your turn to attack!' : 'Waiting for opponent...'
     } 
 
 
