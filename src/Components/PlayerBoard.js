@@ -30,7 +30,7 @@ export default function PlayerBoard({board, clickCell, shipToPlace, vertical}) {
             }
         }
         return cells
-    }, [hoverCell, vertical])
+    }, [hoverCell, vertical, shipToPlace])
 
     if (!board) {
         return <></>

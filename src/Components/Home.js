@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom"
 
-export default function Home({backendUrl, setSessionToken, appendError}) {
+export default function Home({backendUrl, appendError}) {
     const navigate = useNavigate()
 
     const createGame = async () => {
@@ -18,8 +18,7 @@ export default function Home({backendUrl, setSessionToken, appendError}) {
             }
             response = await response.json()
             const { gameId, token } = response
-            setSessionToken(token)
-            navigate(`/game/${gameId}`)
+            navigate(`/game/${gameId}`, {state:{token}})
         } catch (err) {
             console.error(err);
             appendError(err.message)

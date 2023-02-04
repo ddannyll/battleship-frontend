@@ -1,46 +1,38 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Routes, Route } from "react-router-dom";
-import ErrorHandler from "./ErrorHandler";
+import 'destyle.css'
 import Game from "./Game";
 import Home from "./Home";
+import './App.css'
+import uniqid from 'uniqid';
+import ErrorNotifications from "./ErrorNotifications";
 
 function App() {
-    const backendUrl = process.env.REACT_APP_BACKENDURL || 'http://localhost:4200'
-    console.log(`Using ${backendUrl} as the backend`);
-    const [ sessionToken, setSessionToken ] = useState(window.sessionStorage.getItem('sessionToken'))
+    let backendUrl = process.env.REACT_APP_BACKENDURL || 'http://localhost:4200'
     const [ errors, setErrors ] = useState([])
+    
+    useEffect(() => {
+        console.log(`Using ${backendUrl} as the backend`);
+    }, [backendUrl])
 
-    const appendError = (errorMessage) => {
-        const errorIndex = errors.length
-        const error = {
+    const appendError = useCallback((errorMessage) => {
+        const id = uniqid()
+        const newError = {
+            id,
             message: errorMessage,
             dismissed: false,
-            dismiss: () => {
-                console.log(errorIndex);
-                setErrors(prev => prev.slice(0, errorIndex)
-                    .concat(
-                        {
-                            message: errorMessage,
-                            dismissed: true
-                        }   
-                    )
-                    .concat(prev.slice(errorIndex + 1))
-                )
-            }
+            dismiss: () => {setErrors(prev => prev.filter(error => error.id !== id))}
         }
-        setErrors(prev => [...prev, error])
-    }
+        setErrors(prev => [...prev, newError])
+    }, [])
 
-    useEffect(() => {
-        window.sessionStorage.setItem('sessionToken', sessionToken)
-    }, [sessionToken])
 
     return (
         <>
-            <ErrorHandler errors={errors}/>
+            <ErrorNotifications errors={errors}/>
             <Routes>
-                <Route path="/" element={<Home backendUrl={backendUrl} setSessionToken={setSessionToken} appendError={appendError}/>}/>
-                <Route path="/game/:id" element={<Game backendUrl={backendUrl} sessionToken={sessionToken} setSessionToken={setSessionToken} appendError={appendError}/>}/>
+                <Route path="/" element={<Home backendUrl={backendUrl} appendError={appendError}/>}/>
+                <Route path="/game/:id" element={<Game backendUrl={backendUrl} appendError={appendError}/>}/>
             </Routes>
         </>
     );

@@ -1,7 +1,21 @@
-export default function GameHeader({ id, state, attackTurn }) {
+import './GameHeader.css'
+
+export default function GameHeader({ id, state, attackTurn, shipToPlace}) {
+    
+    let primaryText = 'Unknown Primary'
+    let secondaryText = 'Unknown Secondary'
+    if (state === 'place') {
+        primaryText = 'Pregame'
+        secondaryText = !shipToPlace ? 'Waiting for opponent...' : 'Place your ' + shipToPlace
+    } else if (state === 'battle') {
+        primaryText = 'Battle'
+    } 
+
+
     return (
         <div className="gameHeader">
-            {state} {`${attackTurn}`}
+            <h1>{primaryText}</h1>
+            <h2>{secondaryText}</h2>
         </div>
     )
 }

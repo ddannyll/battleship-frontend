@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react"
-import { useParams } from "react-router-dom"
+import { useLocation, useParams } from "react-router-dom"
 import PlayerBoard from "./PlayerBoard"
-import { difference, isEqual } from "lodash"
+import { difference, isEqual, join } from "lodash"
 import './Game.css'
 import GameHeader from "./GameHeader"
 
@@ -14,169 +14,67 @@ const SHIP_NAMES = [
 ]
 
 
-export default function Game(props) {
-    const { id } = useParams()
-    const { backendUrl, sessionToken, setSessionToken, appendError } = props
-    const [ board, setBoard ] = useState()
-    const [ enemyBoard, setEnemyBoard ] = useState()
-    const [ state, setState ] = useState()
-    const [ vertical, setVertical ] = useState(false)
-    const [ playerClickCell, setPlayerClickCell ] = useState(() => {})
-    const [ enemyClickCell, setEnemeyClickCell ] = useState(() => {})
-    const [ shipsToPlace, setShipsToPlace ] = useState([])
-    const [ attackTurn, setAttackTurn ] = useState(false)
+export default function Game({backendUrl, appendError}) {
+    const {id} = useParams()
+    const [joined, setJoined] = useState(false)
+    const [token, setToken] = useState(useLocation()?.state?.token)
+    const [response, setResponse] = useState()
 
-
-
-    const handleResponse = useCallback((response) => {
-        response.then(response => {
-            if (!response.ok) {
-                return response.text().then(text=>{throw new Error(text)})
-            }
-            return response.json()
-        })
-        .then(response => {
-            setSessionToken(response.token)
-            setBoard(response.board)
-            setEnemyBoard(response.enemyBoard)
-            setState(response.state)
-            setAttackTurn(response.attackTurn)
-            setShipsToPlace((prevShips) => {
-                const newShips = difference(SHIP_NAMES, Object.keys(response.board.ships))
-                if (isEqual(newShips, prevShips)) {
-                    return prevShips
-                }
-                return newShips
-            })
-        })
-        .catch(err => {
-            console.error(err);
-            appendError(err.message)
-        })
-    }, [setSessionToken, appendError])
-
-    const fetchData = useCallback(() => {
-        if (!sessionToken) {
+    useEffect(() => {
+        if (joined) {
             return
         }
-        console.log('fetch')
-        const getUrl = new URL(backendUrl)
-        getUrl.pathname = `response/${id}`
-        getUrl.searchParams.set('token', sessionToken)
-        handleResponse(
-            fetch(getUrl, {
-                mode:'cors',
-                method:'GET'
-            })
-        )
-    }, [id, backendUrl, sessionToken, handleResponse])
-
-    const placeShip = useCallback((shipName, x, y, vertical) => {
-        const postUrl = new URL(backendUrl)
-        postUrl.pathname = `place/${id}`
-        handleResponse(
-            fetch(postUrl, {
+        const join = async () => {
+            const url = new URL(backendUrl)
+            url.pathname = `join/${id}`
+            let response = await fetch(url, {
                 mode:'cors',
                 method:'POST',
                 headers:{'Content-Type':'application/json'},
                 body: JSON.stringify({
-                    token: sessionToken,
-                    playerId: 1,
-                    shipName,
-                    position: {
-                        x,
-                        y
-                    },
-                    vertical
+                    token
                 })
             })
-        )
-        console.log('placing ship: ' + shipName);
-    }, [backendUrl, sessionToken, id, handleResponse])
-
-    const attack = useCallback((x, y) => {
-        const postUrl = new URL(backendUrl)
-        postUrl.pathname = `attack/${id}`
-        handleResponse(
-            fetch(postUrl, {
-                mode:'cors',
-                method:'POST',
-                headers:{'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    token: sessionToken,
-                    position: {
-                        x,
-                        y
+            if (!response.ok) {
+                response = await response.text()
+                console.error(response);
+                appendError(response)
+                return
+            } 
+            try {
+                response = await response.json()
+                setResponse(prev => {
+                    if (isEqual(prev, response)) {
+                        return prev
                     }
+                    return response
                 })
-            })
-        )
-    }, [backendUrl, id, sessionToken, handleResponse])
-
-    useEffect(() => {
-        console.log('join effect');
-        if (!sessionToken) {
-            const postUrl = new URL(backendUrl)
-            postUrl.pathname = `join/${id}`
-            handleResponse(
-                fetch(postUrl, {
-                    mode:'cors',
-                    method:'POST'
-                })
-            )
+                setToken(response.token)
+                setJoined(true)
+            } catch (err) {
+                appendError(err)
+            }
         }
-    }, [backendUrl, id, sessionToken, handleResponse])
-
-    useEffect(() => {
-        console.log('fetch effect');
-        fetchData()
-        let intervalId
-        if ((!attackTurn && state === 'battle') || (shipsToPlace.length === 0 && state === 'place')) {
-            console.log('interval');
-            intervalId = setInterval(fetchData, 1000)
-        }
-        return (() => clearInterval(intervalId))
-    }, [fetchData, attackTurn, shipsToPlace, state])
-
-    useEffect(() => {
-        console.log('state effect');
-        switch (state) {
-            case "place":
-                setEnemeyClickCell(() => () => {})
-                if (shipsToPlace.length > 0) {
-                    setPlayerClickCell(() => (x, y) => {placeShip(shipsToPlace[0], x, y, vertical)})
-                } else {
-                    setPlayerClickCell(() => () => {})
-                }
-                break;
-            case "battle":
-                setPlayerClickCell(() => () => {})
-                if (attackTurn) {
-                    setEnemeyClickCell(() => (x, y) => {attack(x, y)})
-                } else {
-                    setEnemeyClickCell(() => () => {})
-                }
-                break
-            case "finish":
-                setPlayerClickCell(() => () => {})
-                setEnemeyClickCell(() => () => {})
-                break
-            default:
-
-                break;
-        }
-    }, [attack, placeShip, shipsToPlace, state, attackTurn, vertical])
-
-
-
+        join()
+    }, [token, id, joined, backendUrl])
 
     return (
+        <>
+            {JSON.stringify(response?.token)}
+            <button onClick={() => {appendError('test')}}>error</button>
+        </>
+    )
+
+/*
+    return (
         <div className="game">
-            <GameHeader id={id} state={state} attackTurn={attackTurn}/>
-            Game {id} {sessionToken} {state} {attackTurn?'attack':'wait'}
+            <GameHeader id={id} state={state} attackTurn={attackTurn} shipToPlace={shipsToPlace[0]}/>
             <button onClick={() => {setVertical(prev => !prev)}}>Change Orientation</button>
-            <PlayerBoard board={board} clickCell={playerClickCell} shipToPlace={shipsToPlace[0]} vertical={vertical}/>
-            <PlayerBoard board={enemyBoard} clickCell={enemyClickCell}/> 
+            <div className="boards">
+                <PlayerBoard board={board} clickCell={playerClickCell} shipToPlace={shipsToPlace[0]} vertical={vertical}/>
+                <PlayerBoard board={enemyBoard} clickCell={enemyClickCell}/> 
+            </div>
         </div>
     )
+*/
 }
