@@ -21,6 +21,7 @@ export default function Game({backendUrl, appendError, token}) {
     const [vertical, setVertical] = useState(false)
     
     const handleResponse = useCallback((response) => {
+        // Wrapper for fetch api, handles errors and sets response state
         response.then(response => {
             if (!response.ok) {
                 return response.text().then(text=>{throw new Error(text)})
@@ -28,11 +29,16 @@ export default function Game({backendUrl, appendError, token}) {
             return response.json()
         })
         .then(response => {
-            setResponse(response)
+            setResponse((prev) => {
+                if (isEqual(prev, response)) {
+                    return prev
+                }
+                return response
+            })
         })
         .catch(err => {
             console.error(err)
-            appendError(err)
+            appendError(err.message)
         })
     }, [appendError] )
     
@@ -94,6 +100,7 @@ export default function Game({backendUrl, appendError, token}) {
 
     
     useEffect(() => {
+        // useEffect to handle joining a battle
         if (!token) {
             return
         }
@@ -131,23 +138,19 @@ export default function Game({backendUrl, appendError, token}) {
     }, [response])
 
     useEffect(() => {
+        // Polling fetch when waiting for enemy turn
         console.log('fetch effect');
-        const fetchResponse = async () => {
+        const fetchResponse = () => {
             console.log('fetching');
             const url = new URL(backendUrl)
             url.pathname = `response/${id}`
             url.searchParams.set('token', token)
-            let response = await fetch(url, {
-                mode: 'cors',
-                method: 'GET'
-            })
-            response = await response.json()
-            setResponse(prev => {
-                if (isEqual(prev, response)) {
-                    return prev
-                }
-                return response
-            })
+            handleResponse(
+                fetch(url, {
+                    mode: 'cors',
+                    method: 'GET'
+                })
+            )
         }
         fetchResponse()
         let intervalId
@@ -156,17 +159,20 @@ export default function Game({backendUrl, appendError, token}) {
             intervalId = setInterval(fetchResponse, 1000)
         }
         return (() => clearInterval(intervalId))
-    }, [shipsToPlace, response, backendUrl, id, token])
+    }, [shipsToPlace, response, backendUrl, id, token, handleResponse])
+
+    const handleSwitchOrientation = (e) => {
+        e.preventDefault()
+        setVertical(prev => !prev)
+    }
 
 
     return (
         <>
             <GameHeader id={id} state={response?.state} attackTurn={response?.attackTurn} shipToPlace={shipsToPlace[0]}/>
-            {JSON.stringify(response?.token)}
-            <button onClick={() => {appendError('test')}}>error</button>
-            <button onClick={() => {setVertical(prev => !prev)}}>Change Orientation</button>
-            <div className="boards">
-                <Board board={response?.board} clickCell={playerClickCell} shipToPlace={shipsToPlace[0]} vertical={vertical}/>
+            <button onClick={() => {setVertical(prev => !prev)}}>RMB : Change Orientation</button>
+            <div className="boards" onContextMenu={handleSwitchOrientation}>
+                <Board board={response?.board} clickCell={playerClickCell} shipToPlace={shipsToPlace[0]} vertical={vertical} />
                 <Board board={response?.enemyBoard} clickCell={enemyClickCell}/>
             </div>
         </>
