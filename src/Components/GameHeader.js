@@ -22,7 +22,7 @@ export default function GameHeader({ id, state, attackTurn, shipToPlace, winner 
     return (
         <div className="gameHeader">
             <Link to='/' className='logo'>
-                <img src={logo}/>
+                <img src={logo} alt="battleship logo"/>
                 <h1>Battleship</h1>
             </Link>
             <div className="stateHeader">

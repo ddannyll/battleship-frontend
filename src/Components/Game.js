@@ -61,11 +61,9 @@ export default function Game({backendUrl, appendError, token}) {
                 })
             })
         )
-        console.log('placing ship: ' + shipName);
     }, [backendUrl, token, id, handleResponse])
 
     const attack = useCallback((x, y) => {
-        console.log('attack');
         const postUrl = new URL(backendUrl)
         postUrl.pathname = `attack/${id}`
         handleResponse(
@@ -104,7 +102,6 @@ export default function Game({backendUrl, appendError, token}) {
         if (!token) {
             return
         }
-        console.log('joining');
         const controller = new AbortController()
         const url = new URL(backendUrl)
         url.pathname = `join/${id}`
@@ -128,7 +125,6 @@ export default function Game({backendUrl, appendError, token}) {
         if (!response || !token) {
             return
         }
-        console.log(response);
         setShipsToPlace((prevShips) => {
             const newShips = difference(SHIP_NAMES, Object.keys(response.board.ships))
             if (isEqual(newShips, prevShips)) {
@@ -136,16 +132,14 @@ export default function Game({backendUrl, appendError, token}) {
             }
             return newShips
         })
-    }, [response])
+    }, [response, token])
 
     useEffect(() => {
         // Polling fetch when waiting for enemy turn
         if (!response || !token) {
             return
         }
-        console.log('fetch effect');
         const fetchResponse = () => {
-            console.log('fetching');
             const url = new URL(backendUrl)
             url.pathname = `response/${id}`
             url.searchParams.set('token', token)
@@ -158,7 +152,6 @@ export default function Game({backendUrl, appendError, token}) {
         }
         let intervalId
         if (response && ((!response.attackTurn && response.state === 'battle') || (shipsToPlace.length === 0 && response.state === 'place'))) {
-            console.log('interval');
             intervalId = setInterval(fetchResponse, 1000)
         }
         return (() => clearInterval(intervalId))

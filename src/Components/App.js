@@ -13,10 +13,6 @@ function App() {
     const [ token, setToken ] = useState(window.sessionStorage.getItem('token'))
 
     
-    useEffect(() => {
-        console.log(`Using ${backendUrl} as the backend`);
-    }, [backendUrl])
-
     const appendError = useCallback((errorMessage) => {
         const id = uniqid()
         const newError = {
@@ -29,7 +25,6 @@ function App() {
     }, [])
 
     useEffect(() => {
-        console.log('getting token');
         if (token) {
             return
         }
@@ -49,7 +44,7 @@ function App() {
             try {
                 response = await response.json()
                 setToken(response.token)
-                console.log(' t : ' + response.token);
+                console.log('token : ' + response.token);
                 window.sessionStorage.setItem('token', response.token)
             } catch (err) {
                 appendError(err.message)

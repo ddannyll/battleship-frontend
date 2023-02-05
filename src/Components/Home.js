@@ -35,7 +35,7 @@ export default function Home({backendUrl, appendError, token}) {
         <div className="home">
             <div className="gameHeader">
                 <Link to='/' className='logo'>
-                    <img src={logo}/>
+                    <img src={logo} alt="battleship logo"/>
                     <h1>Battleship</h1>
                 </Link>
                 <button className="clickButton" onClick={createGame}>Create Game</button>
