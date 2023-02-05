@@ -25,6 +25,7 @@
 
 .shell::after {
     content: '⬤';
+    font-size: 50%;
 }
 
 .shell.hit {
