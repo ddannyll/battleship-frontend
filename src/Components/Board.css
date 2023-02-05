@@ -28,6 +28,6 @@
 }
 
 .shell.hit {
-    color: rgb(255, 53, 53);
+    color: var(--red);
 }
 

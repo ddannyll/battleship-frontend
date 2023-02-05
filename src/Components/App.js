@@ -60,13 +60,13 @@ function App() {
     }, [appendError, backendUrl, token])
 
     return (
-        <>
+        <div className="app">
             <ErrorNotifications errors={errors}/>
             <Routes>
                 <Route path="/" element={<Home backendUrl={backendUrl} appendError={appendError} token={token}/>}/>
                 <Route path="/game/:id" element={<Game backendUrl={backendUrl} appendError={appendError} token={token}/>}/>
             </Routes>
-        </>
+        </div>
     );
 }
 

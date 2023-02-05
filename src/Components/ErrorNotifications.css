@@ -20,7 +20,7 @@
 }
 
 .errorNotification > button:hover {
-    color: #ff3535;
+    color: var(--red);
 }
 
 .errorNotification h3 {

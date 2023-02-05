@@ -174,6 +174,16 @@ export default function Game({backendUrl, appendError, token}) {
         changeOrientation()
     }, [changeOrientation])
 
+
+    const copyGameLink = (e) => {
+        const defaultText = 'Copy Game Link'
+        navigator.clipboard.writeText(document.URL)
+        e.target.innerText = 'Copied to Clipboard'
+        setTimeout(() => {
+            e.target.innerText = defaultText
+        }, 3000)
+    }
+
     return (
         <div className="game">
             <GameHeader id={id} state={response?.state} attackTurn={response?.attackTurn} shipToPlace={shipsToPlace[0]} winner={response?.winner}/>
@@ -182,6 +192,7 @@ export default function Game({backendUrl, appendError, token}) {
                 <Board board={response?.board} clickCell={playerClickCell} shipToPlace={shipsToPlace[0]} vertical={vertical} />
                 <Board board={response?.enemyBoard} clickCell={enemyClickCell}/>
             </div>
+            <button className="copyLink" onClick={copyGameLink}>Copy Game Link</button>
         </div>
     )
 }

@@ -27,7 +27,7 @@ export default function GameHeader({ id, state, attackTurn, shipToPlace, winner 
             </Link>
             <div className="stateHeader">
                 <h2>{primaryText}</h2>
-                <h3>{secondaryText}</h3>
+                <h3 className={attackTurn ? 'critical' : ''}>{secondaryText}</h3>
             </div>
         </div>
     )
