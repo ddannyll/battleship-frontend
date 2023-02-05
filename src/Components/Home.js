@@ -1,4 +1,7 @@
 import { useNavigate } from "react-router-dom"
+import logo from '../images/battleship.png'
+import { Link } from "react-router-dom"
+import './Home.css'
 
 export default function Home({backendUrl, appendError, token}) {
     const navigate = useNavigate()
@@ -29,8 +32,14 @@ export default function Home({backendUrl, appendError, token}) {
     }
     
     return (
-        <>
-            <button onClick={createGame}>Create Game</button>
-        </>
+        <div className="home">
+            <div className="gameHeader">
+                <Link to='/' className='logo'>
+                    <img src={logo}/>
+                    <h1>Battleship</h1>
+                </Link>
+                <button className="clickButton" onClick={createGame}>Create Game</button>
+            </div>
+        </div>
     )
 }

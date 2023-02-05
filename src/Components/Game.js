@@ -192,7 +192,7 @@ export default function Game({backendUrl, appendError, token}) {
                 <Board board={response?.board} clickCell={playerClickCell} shipToPlace={shipsToPlace[0]} vertical={vertical} />
                 <Board board={response?.enemyBoard} clickCell={enemyClickCell}/>
             </div>
-            <button className="copyLink" onClick={copyGameLink}>Copy Game Link</button>
+            <button className="clickButton" onClick={copyGameLink}>Copy Game Link</button>
         </div>
     )
 }

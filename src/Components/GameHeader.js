@@ -5,8 +5,8 @@ import { startCase } from 'lodash'
 
 export default function GameHeader({ id, state, attackTurn, shipToPlace, winner }) {
     
-    let primaryText = 'Unknown Primary'
-    let secondaryText = 'Unknown Secondary'
+    let primaryText = ''
+    let secondaryText = ''
     if (state === 'place') {
         primaryText = 'Pregame'
         secondaryText = !shipToPlace ? 'Waiting for opponent...' : 'Place your ' + startCase(shipToPlace)

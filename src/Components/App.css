@@ -16,3 +16,13 @@ body {
 }
 
 
+.clickButton {
+    padding: 10px 20px;
+    width: 200px;
+    text-align: center;
+    border: 1px solid var(--offwhite);
+}
+
+.clickButton:active {
+    transform: translate(0, 3px);
+}
