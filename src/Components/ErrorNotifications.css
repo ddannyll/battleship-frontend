@@ -1,12 +1,33 @@
 .errorNotification {
     position: absolute;
-    top: 50%;
+    display: relative;
+    top: 40%;
     left: 50%;
     transform: translate(-50%, -50%);
-    border: 1px solid black;
     display: flex;
     flex-direction: column;
     text-align: center;
     width: 400px;
-    background-color: white;
+    background-color: rgba(255, 255, 255, 0.568);
+    color: var(--background-color);
+    font-weight: 300;
+}
+
+.errorNotification > button {
+    position: absolute;
+    right: 0;
+    padding: 5px;
+}
+
+.errorNotification > button:hover {
+    color: #ff3535;
+}
+
+.errorNotification h3 {
+    font-size: 1.5rem;
+    margin-top: 0.9rem
+}
+
+.errorNotification > h3, p {
+    margin-bottom: 1rem;
 }

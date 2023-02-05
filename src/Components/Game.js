@@ -175,25 +175,13 @@ export default function Game({backendUrl, appendError, token}) {
     }, [changeOrientation])
 
     return (
-        <>
-            <GameHeader id={id} state={response?.state} attackTurn={response?.attackTurn} shipToPlace={shipsToPlace[0] }/>
+        <div className="game">
+            <GameHeader id={id} state={response?.state} attackTurn={response?.attackTurn} shipToPlace={shipsToPlace[0]} winner={response?.winner}/>
             <button onClick={changeOrientation}>RMB : Change Orientation</button>
             <div className="boards" onContextMenu={handleSwitchOrientation}>
                 <Board board={response?.board} clickCell={playerClickCell} shipToPlace={shipsToPlace[0]} vertical={vertical} />
                 <Board board={response?.enemyBoard} clickCell={enemyClickCell}/>
             </div>
-        </>
-    )
-
-/*
-    return (
-        <div className="game">
-            <button onClick={() => {setVertical(prev => !prev)}}>Change Orientation</button>
-            <div className="boards">
-                <PlayerBoard board={board} clickCell={playerClickCell} shipToPlace={shipsToPlace[0]} vertical={vertical}/>
-                <PlayerBoard board={enemyBoard} clickCell={enemyClickCell}/> 
-            </div>
         </div>
     )
-*/
 }

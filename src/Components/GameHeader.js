@@ -1,4 +1,7 @@
 import './GameHeader.css'
+import logo from '../images/battleship.png'
+import { Link } from 'react-router-dom'
+import { startCase } from 'lodash'
 
 export default function GameHeader({ id, state, attackTurn, shipToPlace, winner }) {
     
@@ -6,20 +9,26 @@ export default function GameHeader({ id, state, attackTurn, shipToPlace, winner 
     let secondaryText = 'Unknown Secondary'
     if (state === 'place') {
         primaryText = 'Pregame'
-        secondaryText = !shipToPlace ? 'Waiting for opponent...' : 'Place your ' + shipToPlace
+        secondaryText = !shipToPlace ? 'Waiting for opponent...' : 'Place your ' + startCase(shipToPlace)
     } else if (state === 'battle') {
         primaryText = 'Battle'
         secondaryText = attackTurn ? 'Your turn to attack!' : 'Waiting for opponent...'
     } else if (state ==='finish') {
         primaryText = 'Game Over!'
-        secondaryText = ''
+        secondaryText = winner ? 'You won!' : 'You lost.'
     }
 
 
     return (
         <div className="gameHeader">
-            <h1>{primaryText}</h1>
-            <h2>{secondaryText}</h2>
+            <Link to='/' className='logo'>
+                <img src={logo}/>
+                <h1>Battleship</h1>
+            </Link>
+            <div className="stateHeader">
+                <h2>{primaryText}</h2>
+                <h3>{secondaryText}</h3>
+            </div>
         </div>
     )
 }

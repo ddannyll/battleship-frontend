@@ -1,10 +1,52 @@
 .gameHeader {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    width: 100%;
+    background-color: var(--dark);
+    padding: 20px 30px;
+}
+
+.stateHeader {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
+    text-align: center;
+    align-self: center;
 }
+
+.logo {
+    align-self: center;
+    color: var(--offwhite);
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.logo > img {
+    filter: brightness(0) invert(0.9);
+    height: 3rem;
+}
+
+@media (max-width: 1000px) {
+    .logo > h1 {
+        display: none;        
+    }
+}
+
+
 
 h1 {
     font-size: 3rem;
+    font-weight: 300;
+}
+
+h2 {
+    font-size: 2rem;
+    font-weight: 300;
+}
+
+p {
+    font-weight: 300;
 }
